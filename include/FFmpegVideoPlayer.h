@@ -134,7 +134,7 @@ struct VideoFrame
  * 
  * Playback assumes video master for synchronization.
  */
-class FFmpegVideoPlayer : public Ogre::FrameListener
+class _FFmpegPluginExport FFmpegVideoPlayer : public Ogre::FrameListener
 {
 private:
     /**
