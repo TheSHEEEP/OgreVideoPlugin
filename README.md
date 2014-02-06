@@ -3,7 +3,7 @@ This is an actual Ogre plugin.<br />
 It will install the FFmpegVideoPlayer as a frame listener so all you have to do i interact with the singleton.
 
 <h2>What does it do?</h2>
-The video player will replace an existing texture unit in an existing material with the video.<br />
+The video player will replace an existing texture in an existing texture unit in an existing material with the video.<br />
 This means that you can use a video as input for your already existing shader pipeline!<br />
 <br />
 As soon as the buffer is filled, playback starts and the original texture unit's texture is replaced by the video.<br />
