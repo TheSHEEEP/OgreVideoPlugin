@@ -1,6 +1,5 @@
 /**
- * Template for prototypes
- * @author Lars Kokemohr
+ * @author Jan "TheSHEEEP" Drabner
  */
 #include "VideoSoundSource.h"
 
