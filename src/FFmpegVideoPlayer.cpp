@@ -39,7 +39,7 @@ FFmpegVideoPlayer* FFmpegVideoPlayer::_instance = NULL;
 //------------------------------------------------------------------------------
 FFmpegVideoPlayer::FFmpegVideoPlayer() 
     : _materialName("")
-    , _textureName("")
+    , _textureUnitName("")
     , _videoFileName("")
     , _isPlaying(false)
     , _isPaused(false)
@@ -49,7 +49,7 @@ FFmpegVideoPlayer::FFmpegVideoPlayer()
     , _videoBuffersFilledWithBackup(false)
     , _isDecoding(false)
     , _isLooping(false)
-    , _bufferTarget(1.0)
+    , _bufferTarget(1.5)
     , _forcedAudioChannels(0)
     , _currentDecodingThread(NULL)
     , _playerMutex(NULL)
@@ -126,11 +126,11 @@ FFmpegVideoPlayer::setMaterialName(const Ogre::String& p_name)
 
 //------------------------------------------------------------------------------
 void 
-FFmpegVideoPlayer::setTextureName(const Ogre::String& p_name)
+FFmpegVideoPlayer::setTextureUnitName(const Ogre::String& p_name)
 {
     if (!_isPlaying)
     {
-        _textureName = p_name;
+        _textureUnitName = p_name;
     }
 }
 
@@ -267,7 +267,7 @@ FFmpegVideoPlayer::startPlaying()
             _log->logMessage("Can't play another video. Video is already playing.", Ogre::LML_CRITICAL);
         return false;
     }
-    if (_materialName == "" || _textureName == "")
+    if (_materialName == "" || _textureUnitName == "")
     {
         if (_log && _logLevel >= LOGLEVEL_MINIMAL) 
             _log->logMessage("Can't play video. No material, texture or resource group specified.", Ogre::LML_CRITICAL);
@@ -310,7 +310,7 @@ FFmpegVideoPlayer::startPlaying()
                 Ogre::TextureUnitState* tu = pass->getTextureUnitState(k);
                 
                 // Is this our texture?
-                if (tu->getName() == _textureName)
+                if (tu->getName() == _textureUnitName)
                 {
                     _originalTextureUnitState = tu;
                     _originalTextureName = tu->getTextureName();
@@ -318,7 +318,7 @@ FFmpegVideoPlayer::startPlaying()
                     
                     if (_log && _logLevel >= LOGLEVEL_NORMAL)
                         _log->logMessage("Successfully found texture unit " 
-                                        + _textureName + " inside material " 
+                                        + _textureUnitName + " inside material " 
                                         + _materialName + ".", Ogre::LML_NORMAL);
                 }
             }

@@ -193,15 +193,15 @@ public:
     const Ogre::String& getMaterialName() const;
     
     /**
-     * @param p_name    The texture name to play the video on.
-     *                  Make sure the material has a texture with that name.
+     * @param p_name    The texture unit name to play the video on.
+     *                  Make sure the material has a texture unit with that name.
      */
-    void setTextureName(const Ogre::String& p_name);
+    void setTextureUnitName(const Ogre::String& p_name);
     
     /**
      * @return The texture that is currently being used.
      */
-    const Ogre::String& getTextureName() const;
+    const Ogre::String& getTextureUnitName() const;
     
     /**
      * @param p_name    The video filename.
@@ -372,7 +372,7 @@ public:
     
 private:
     Ogre::String    _materialName;
-    Ogre::String    _textureName;
+    Ogre::String    _textureUnitName;
     Ogre::String    _videoFileName;
     VideoInfo       _videoInfo;
     double          _bufferTarget;
@@ -449,9 +449,9 @@ FFmpegVideoPlayer::getMaterialName() const
 //------------------------------------------------------------------------------
 inline
 const Ogre::String& 
-FFmpegVideoPlayer::getTextureName() const
+FFmpegVideoPlayer::getTextureUnitName() const
 {
-    return _textureName;
+    return _textureUnitName;
 }
 
 //------------------------------------------------------------------------------
