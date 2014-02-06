@@ -328,6 +328,7 @@ FFmpegVideoPlayer::startPlaying()
         
         if (found) break;
     }
+	if (!found) return false;
     
     _isWaitingForBuffers = true;
     return true;
@@ -414,7 +415,7 @@ FFmpegVideoPlayer::startDecoding(bool p_leaveFramesIntact)
     _currentDecodingThread = new boost::thread(videoDecodingThread, threadInfo);
     {
         boost::mutex::scoped_lock lock(*_playerMutex);
-        while (!_videoInfo.infoFilled || _videoInfo.error.length() > 0)
+        while (!_videoInfo.infoFilled && !_videoInfo.error.length())
         {
             boost::chrono::steady_clock::time_point const timeOut = 
                 boost::chrono::steady_clock::now() + boost::chrono::milliseconds(3000);
