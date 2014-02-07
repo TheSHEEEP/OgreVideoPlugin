@@ -25,6 +25,25 @@ extern "C"
 static Ogre::Log* staticOgreLog = NULL;
 
 //------------------------------------------------------------------------------
+// Used internally to decoding thread, to determine desired audio sample format
+inline AVSampleFormat getAVSampleFormat(AudioSampleFormat fmt)
+{
+	AVSampleFormat ret;
+	switch (fmt)
+	{
+	case ASF_S16:
+		ret = AV_SAMPLE_FMT_S16;
+		break;
+	case ASF_FLOAT:
+	default:
+		ret = AV_SAMPLE_FMT_FLT;
+		break;
+	}
+
+	return ret;
+}
+
+//------------------------------------------------------------------------------
 // This is a slightly modified version of the default ffmpeg log callback
 void log_callback(void* ptr, int level, const char* fmt, va_list vl)
 {
@@ -144,7 +163,7 @@ int decodeAudioPacket(  AVPacket& p_packet, AVCodecContext* p_audioCodecContext,
                                         p_destBuffer, p_destLinesize, 
                                         (const uint8_t**)p_frame->extended_data, p_frame->nb_samples);
         
-        int bufferSize = av_get_bytes_per_sample(AV_SAMPLE_FMT_FLT) * p_videoInfo.audioNumChannels
+		int bufferSize = av_get_bytes_per_sample(getAVSampleFormat(p_player->getAudioSampleFormat())) * p_videoInfo.audioNumChannels
                             * outputSamples;
         
         int64_t duration = p_frame->pkt_duration;
@@ -401,7 +420,7 @@ void videoDecodingThread(ThreadInfo* p_threadInfo)
     
     // Initialize SWR context
     SwrContext* swrContext = swr_alloc_set_opts(NULL, 
-                targetChannelLayout, AV_SAMPLE_FMT_FLT, audioCodecContext->sample_rate,
+                targetChannelLayout, getAVSampleFormat(videoPlayer->getAudioSampleFormat()), audioCodecContext->sample_rate,
                 audioCodecContext->channel_layout, audioCodecContext->sample_fmt, audioCodecContext->sample_rate, 
                 0, NULL);
     int result = swr_init(swrContext);
@@ -419,7 +438,7 @@ void videoDecodingThread(ThreadInfo* p_threadInfo)
                                         &destBufferLinesize,
                                         videoInfo.audioNumChannels,
                                         2048,
-                                        AV_SAMPLE_FMT_FLT,
+                                        getAVSampleFormat(videoPlayer->getAudioSampleFormat()),
                                         0);
     
     // Main decoding loop
