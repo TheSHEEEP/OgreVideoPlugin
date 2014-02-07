@@ -60,6 +60,12 @@ enum LogLevel
     NUM_LOGLEVELS
 };
 
+enum AudioSampleFormat
+{
+	ASF_FLOAT, // AV_SAMPLE_FMT_FLT
+	ASF_S16, // AV_SAMPLE_FMT_S16
+};
+
 /**
  * Struct that holds one audio frame.
  */
@@ -369,6 +375,16 @@ public:
      * @return  True to go ahead, false to abort rendering and drop out of the rendering loop.
      */
     virtual bool frameStarted(const Ogre::FrameEvent& p_evt);
+
+    /**
+     * Returns the desired sample format for the decoding thread to use when converting audio
+     */
+    AudioSampleFormat getAudioSampleFormat(void);
+
+	/**
+     * Sets the desired sample format for the decoding thread to use when converting audio
+     */
+    void setAudioSampleFormat(AudioSampleFormat fmt);
     
 private:
     Ogre::String    _materialName;
@@ -406,7 +422,7 @@ private:
     Ogre::TextureUnitState*     _originalTextureUnitState;
     std::deque<VideoFrame*>     _videoFrames;
     std::deque<VideoFrame*>     _backupVideoFrames;
-    
+    AudioSampleFormat			_decodedAudioFormat;
     int _framesPopped;
     
     Ogre::Log*  _log;
@@ -547,6 +563,21 @@ FFmpegVideoPlayer::resumeVideo()
     {
         _isPaused = false;
     }
+}
+
+//------------------------------------------------------------------------------
+inline
+AudioSampleFormat
+FFmpegVideoPlayer::getAudioSampleFormat(void)
+{
+	return _decodedAudioFormat;
+}
+
+inline
+void
+FFmpegVideoPlayer::setAudioSampleFormat(AudioSampleFormat fmt)
+{
+	_decodedAudioFormat = fmt;
 }
 
 #endif	/* FFMPEGVIDEOPLAYER_H */

@@ -66,6 +66,7 @@ FFmpegVideoPlayer::FFmpegVideoPlayer()
     , _framesPopped(0)
     , _log(NULL)
     , _logLevel(LOGLEVEL_NORMAL)
+	, _decodedAudioFormat(ASF_FLOAT)
 {
     _playerMutex = new boost::mutex();
     _playerCondVar = new boost::condition_variable();
@@ -717,4 +718,3 @@ FFmpegVideoPlayer::frameStarted(const Ogre::FrameEvent& p_evt)
     
     return true;
 }
-
