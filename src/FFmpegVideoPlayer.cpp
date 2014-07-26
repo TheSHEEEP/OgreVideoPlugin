@@ -290,7 +290,7 @@ FFmpegVideoPlayer::startPlaying()
                     "FFmpegVideoTexture",
                     Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
                     Ogre::TEX_TYPE_2D,
-                    _videoInfo.videoWidth, _videoInfo.videoWidth,
+                    _videoInfo.videoWidth, _videoInfo.videoHeight,
                     0,
                     Ogre::PF_BYTE_RGBA,
                     Ogre::TU_DYNAMIC_WRITE_ONLY_DISCARDABLE);
