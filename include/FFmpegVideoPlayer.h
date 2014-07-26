@@ -15,6 +15,8 @@
 #include <OgreTextureManager.h>
 #include <deque>
 
+#include <stdint.h>
+
 // Forward declarations
 namespace Ogre
 {
@@ -385,6 +387,16 @@ public:
      * Sets the desired sample format for the decoding thread to use when converting audio
      */
     void setAudioSampleFormat(AudioSampleFormat fmt);
+
+    /**
+     * Obtains the number of video frames currently buffered.
+     */
+    unsigned int getBufferedVideoFrames() const;
+
+    /**
+     * Obtains the number of audio frames currently buffered.
+     */
+    unsigned int getBufferedAudioFrames() const;
     
 private:
     Ogre::String    _materialName;

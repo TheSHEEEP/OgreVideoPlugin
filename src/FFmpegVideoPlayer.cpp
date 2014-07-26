@@ -718,3 +718,13 @@ FFmpegVideoPlayer::frameStarted(const Ogre::FrameEvent& p_evt)
     
     return true;
 }
+
+unsigned int FFmpegVideoPlayer::getBufferedVideoFrames() const
+{
+    return _videoFrames.size();
+}
+
+unsigned int FFmpegVideoPlayer::getBufferedAudioFrames() const
+{
+    return _audioFrames.size();
+}
