@@ -16,7 +16,9 @@ extern "C"
 #include <boost/chrono.hpp>
 #include <boost/lexical_cast.hpp>
 #include <OgreLog.h>
+#include <OgreResourceGroupManager.h>
 #include <string>
+#include <stdint.h>
 
 #include "FFmpegVideoPlayer.h"
 
@@ -274,6 +276,39 @@ int decodeVideoPacket(  AVPacket& p_packet, AVCodecContext* p_videoCodecContext,
 }
 
 //------------------------------------------------------------------------------
+static int ReadPacket(void * opaque, uint8_t * buf, int buf_size)
+{
+    Ogre::DataStream * ds = static_cast<Ogre::DataStream *>(opaque);
+
+    return ds->read(buf, buf_size);
+}
+
+static int64_t SeekPacket(void * opaque, int64_t offset, int whence)
+{
+    Ogre::DataStream * ds = static_cast<Ogre::DataStream *>(opaque);
+
+    switch (whence)
+    {
+        case SEEK_CUR:
+            ds->skip(offset);
+            break;
+
+        case SEEK_SET:
+            ds->seek(offset);
+            break;
+
+        case SEEK_END:
+            ds->seek(ds->size() + offset);
+            break;
+
+        case AVSEEK_SIZE:
+            return ds->size();
+    }
+
+    return ds->tell();
+}
+
+//------------------------------------------------------------------------------
 void videoDecodingThread(ThreadInfo* p_threadInfo)
 {
     // Read ThreadInfo struct, then delete it
@@ -294,9 +329,25 @@ void videoDecodingThread(ThreadInfo* p_threadInfo)
     
     // Initialize video decoding, filling the VideoInfo
     // Open the input file
-    AVFormatContext* formatContext = NULL;
-    const char* name = videoPlayer->getVideoFilename().c_str();
-    if (avformat_open_input(&formatContext, name, NULL, NULL) < 0) 
+    AVFormatContext* formatContext = avformat_alloc_context();
+
+    Ogre::DataStreamPtr data = Ogre::ResourceGroupManager::getSingleton().openResource(videoPlayer->getVideoFilename());
+
+    const int bufferSize = 4 * 1024; // 4KB buffer
+    unsigned char * buffer = static_cast<unsigned char *>(av_malloc(bufferSize));
+
+    if (! buffer)
+    {
+        videoInfo.error = "Could not create buffer (out of memory)";
+        playerCondVar->notify_all();
+        return;
+    }
+
+    AVIOContext * io = avio_alloc_context(buffer, bufferSize, 0, data.get(), &ReadPacket, NULL, &SeekPacket);
+
+    formatContext->pb = io;
+
+    if (avformat_open_input(&formatContext, "", NULL, NULL) < 0)
     {
         videoInfo.error = "Could not open input: ";
         videoInfo.error.append(videoPlayer->getVideoFilename());
@@ -527,7 +578,12 @@ void videoDecodingThread(ThreadInfo* p_threadInfo)
     sws_freeContext(swsContext);
     av_freep(&destBuffer[0]);
     swr_free(&swrContext);
+
+    // Also frees the context, no need to do it manually
     avformat_close_input(&formatContext);
+
+    av_free(io);
+    av_freep(buffer);
     
     videoInfo.audioDuration = videoInfo.audioDecodedDuration;
     videoInfo.decodingDone = videoInfo.decodingAborted ? false : true;

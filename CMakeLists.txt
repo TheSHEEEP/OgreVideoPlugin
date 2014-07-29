@@ -95,10 +95,10 @@ list(APPEND PROJECT_SOURCES
 )
 
 # Set required flags
-set(CMAKE_CXX_FLAGS " -D__STDC_CONSTANT_MACROS -DBOOST_THREAD_USE_LIB ")
+set(CMAKE_CXX_FLAGS " -D__STDC_CONSTANT_MACROS -DBOOST_THREAD_USE_LIB -fPIC")
 
 # Add library
-add_library(${PROJECT_NAME} SHARED ${PROJECT_SOURCES})
+add_library(${PROJECT_NAME} STATIC ${PROJECT_SOURCES})
 
 # Add libraries to link against
 target_link_libraries(${PROJECT_NAME} ${LIBS})
