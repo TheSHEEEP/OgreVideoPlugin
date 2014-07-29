@@ -283,6 +283,7 @@ static int ReadPacket(void * opaque, uint8_t * buf, int buf_size)
     return ds->read(buf, buf_size);
 }
 
+//------------------------------------------------------------------------------
 static int64_t SeekPacket(void * opaque, int64_t offset, int whence)
 {
     Ogre::DataStream * ds = static_cast<Ogre::DataStream *>(opaque);
@@ -344,6 +345,13 @@ void videoDecodingThread(ThreadInfo* p_threadInfo)
     }
 
     AVIOContext * io = avio_alloc_context(buffer, bufferSize, 0, data.get(), &ReadPacket, NULL, &SeekPacket);
+
+    if (! io)
+    {
+        videoInfo.error = "Could not create AVIOContext";
+        playerCondVar->notify_all();
+        return;
+    }
 
     formatContext->pb = io;
 
