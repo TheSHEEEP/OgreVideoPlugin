@@ -1,3 +1,7 @@
+<h1>Discontinued!!</h1>
+This repo is not maintained any more and I did not use Ogre in years. Meanwhile, FFmpeg has changed a lot recently.<br />
+Feel free to create your own repo based on this once, but know that this repo will not see support any more.
+
 <h1>Ogre Video Plugin</h1>
 This is an actual Ogre plugin.<br />
 It will install the FFmpegVideoPlayer as a frame listener so all you have to do i interact with the singleton.
