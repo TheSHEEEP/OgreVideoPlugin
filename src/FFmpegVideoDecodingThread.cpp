@@ -1,3 +1,4 @@
+
 #include "FFmpegVideoDecodingThread.h"
 
 extern "C"
@@ -385,12 +386,13 @@ void videoDecodingThread(ThreadInfo* p_threadInfo)
     SwsContext* swsContext = NULL;
     swsContext = sws_getCachedContext(swsContext,
                                 videoInfo.videoWidth, videoInfo.videoHeight, videoCodecContext->pix_fmt, 
-                                videoInfo.videoWidth, videoInfo.videoHeight, PIX_FMT_RGBA, 
+                                videoInfo.videoWidth, videoInfo.videoHeight, AV_PIX_FMT_RGBA, 
                                 SWS_BICUBIC, NULL, NULL, NULL);
     
     // Create destination picture
-    AVFrame* destPic = avcodec_alloc_frame();
-    avpicture_alloc((AVPicture*)destPic, PIX_FMT_RGBA, videoInfo.videoWidth, videoInfo.videoHeight);
+    AVFrame* destPic = av_frame_alloc();
+    
+    avpicture_alloc((AVPicture*)destPic, AV_PIX_FMT_RGBA, videoInfo.videoWidth, videoInfo.videoHeight);
     
     // Get the correct target channel layout
     uint64_t targetChannelLayout;
@@ -469,17 +471,18 @@ void videoDecodingThread(ThreadInfo* p_threadInfo)
         // Initialize frame
         if (!frame) 
         {
-            if (!(frame = avcodec_alloc_frame())) 
+            if (!(frame = av_frame_alloc())) 
             {
                 videoInfo.error = "Out of memory.";
                 return;
             }
         } 
+        /*
         else
         {
             avcodec_get_frame_defaults(frame);
         }
-        
+        */
         // Decode the packet
         AVPacket orig_pkt = packet;
         do 
@@ -519,9 +522,9 @@ void videoDecodingThread(ThreadInfo* p_threadInfo)
     }
     
     // We're done. Close everything
-    avcodec_free_frame(&frame);
+    av_frame_free(&frame);
     avpicture_free((AVPicture*)destPic);
-    avcodec_free_frame(&destPic);
+    av_frame_free(&destPic);
     avcodec_close(videoCodecContext);
     avcodec_close(audioCodecContext);
     sws_freeContext(swsContext);

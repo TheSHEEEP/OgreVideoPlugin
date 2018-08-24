@@ -23,7 +23,7 @@ endif(NOT CMAKE_BUILD_TYPE)
 
 
 # We need the path to the FFmpeg libraries
-set(FFMPEG_PATH "/SET_PATH_TO_ffmpeg_HERE" CACHE PATH "The path where FFmpeg is installed. Needs to have /lib and /include directory.")
+set(FFMPEG_PATH $ENV{FFMPEG}/Install)
 
 # Additional options for ogg, vorbis and theora
 set(OGG1_USE_OGG_THEORA_VORBIS OFF CACHE BOOL "If you want to use ogg container format with theora video and vorbis audio, you must set this and the paths.")
@@ -51,10 +51,11 @@ endif(OGG1_USE_OGG_THEORA_VORBIS)
 
 # Add the libraries
 # Boost
-set(Boost_USE_STATIC_LIBS ON)
-set(Boost_USE_MULTITHREADED ON)
-set(Boost_USE_STATIC_RUNTIME ON)
-find_package(Boost COMPONENTS date_time thread system chrono REQUIRED) # Specify the required components
+
+set(Boost_USE_STATIC_LIBS ON) 
+set(Boost_USE_MULTITHREADED ON) 
+
+find_package(Boost COMPONENTS date_time thread system chrono exception REQUIRED) # Specify the required components
 include_directories(${Boost_INCLUDE_DIRS})
 link_directories(${Boost_LIBRARY_DIRS})
 list(APPEND LIBS ${Boost_LIBRARIES})
@@ -88,6 +89,7 @@ list(APPEND PROJECT_SOURCES
     src/FFmpegVideoPlayer.cpp
     src/FFmpegVideoPlugin.cpp
     src/FFmpegVideoPluginDLL.cpp
+    src/boost_exception.cpp
     include/FFmpegPluginPrerequisites.h
     include/FFmpegVideoDecodingThread.h
     include/FFmpegVideoPlayer.h

@@ -4,7 +4,7 @@
  *
  * Created on 10. Januar 2014, 11:57
  */
-
+#include <iostream>
 #ifndef FFMPEGVIDEODECODINGTHREAD_H
 #define	FFMPEGVIDEODECODINGTHREAD_H
 
