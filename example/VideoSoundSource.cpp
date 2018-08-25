@@ -20,6 +20,7 @@ VideoSoundSource::VideoSoundSource(ALuint source)
     , _delayStreamingPlay(false)
     , _playbackTime(0.0)
 {
+	 alGenSources(1, &source);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -31,14 +32,14 @@ VideoSoundSource::~VideoSoundSource(void)
 	ALenum success = alGetError();
 	if(success != AL_NO_ERROR)
 	{
-		// print error
+		std::cout<<"Error in :~VideoSoundSource(void)"<<std::endl;
 		return;
 	}
 	alSourceStop(_source);
 	success = alGetError();
 	if(success != AL_NO_ERROR)
 	{
-		// print error
+		std::cout<<"Error in :~VideoSoundSource(void)2"<<std::endl;
 		return;
 	}
 
@@ -47,7 +48,7 @@ VideoSoundSource::~VideoSoundSource(void)
 	success = alGetError();
 	if(success != AL_NO_ERROR)
 	{
-		// print error
+		std::cout<<"Error in :~VideoSoundSource(void)3"<<std::endl;
 		return;
 	}
 	
@@ -56,7 +57,7 @@ VideoSoundSource::~VideoSoundSource(void)
 
 //--------------------------------------------------------------------------------------------------
 void
-SoundSource::play()
+VideoSoundSource::play()
 {
 	// Get the format and the frequency.
 	if (_streamingFormat == -1 && _streamingFrequency == -1)
@@ -75,7 +76,7 @@ SoundSource::play()
 		// Use Float32 if possible!
 		if (alIsExtensionPresent("AL_EXT_FLOAT32"))
 		{
-			CONSOLE_LOG("FLOAT32 extension is present.");
+			std::cout<<"FLOAT32 extension is present."<<std::endl;
 			switch(FFMPEG_PLAYER->getVideoInfo().audioNumChannels)
 			{
 			case 1:
@@ -110,7 +111,7 @@ SoundSource::play()
 	ALenum success = alGetError();
 	if(success != AL_NO_ERROR)
 	{
-		// print error
+		std::cout<<"Error in :play()"<<std::endl;
 		return;
 	}
 	
@@ -134,7 +135,7 @@ SoundSource::play()
 		success = alGetError();
 		if(success != AL_NO_ERROR)
 		{
-			// print error
+			std::cout<<"Error in :play()1"<<std::endl;
 			return;
 		}
 	}
@@ -144,7 +145,7 @@ SoundSource::play()
 	success = alGetError();
 	if(success != AL_NO_ERROR)
 	{
-		// print error
+			std::cout<<"Error in :play()2"<<std::endl;
 		return;
 	}
     
@@ -154,7 +155,7 @@ SoundSource::play()
 
 //--------------------------------------------------------------------------------------------------
 void
-SoundSource::stop()
+VideoSoundSource::stop()
 {
     alSourceStop(_source);
     _state = Idle;
@@ -162,21 +163,21 @@ SoundSource::stop()
 
 //--------------------------------------------------------------------------------------------------
 void
-SoundSource::setPitch(float factor)
+VideoSoundSource::setPitch(float factor)
 {
     alSourcef(_source, AL_PITCH, factor);
 }
 
 //--------------------------------------------------------------------------------------------------
 void
-SoundSource::setVolume(float gain)
+VideoSoundSource::setVolume(float gain)
 {
     alSourcef(_source, AL_GAIN, gain);
 }
 
 //--------------------------------------------------------------------------------------------------
 void 
-SoundSource::pause()
+VideoSoundSource::pause()
 {
     alSourcePause(_source);
     _state = Paused;
@@ -184,7 +185,7 @@ SoundSource::pause()
     
 //--------------------------------------------------------------------------------------------------
 void 
-SoundSource::resume()
+VideoSoundSource::resume()
 {
     if (_state == Paused)
     {
@@ -195,7 +196,7 @@ SoundSource::resume()
 
 //--------------------------------------------------------------------------------------------------
 void 
-SoundSource::update(float timeSinceLastFrame)
+VideoSoundSource::update(float timeSinceLastFrame)
 {
 	// Make sure no further decoding is done and pause the source
 	// This is a fallback.
@@ -317,7 +318,7 @@ SoundSource::update(float timeSinceLastFrame)
 		ALenum success = alGetError();
 		if(success != AL_NO_ERROR)
 		{
-			// print error
+				std::cout<<"Error in :alSourceUnqueueBuffers"<<std::endl;
 			return;
 		}
 		
@@ -326,7 +327,7 @@ SoundSource::update(float timeSinceLastFrame)
 		success = alGetError();
 		if(success != AL_NO_ERROR)
 		{
-			// print error
+				std::cout<<"Error in :alBufferData"<<std::endl;
 			return;
 		}
 		
@@ -338,7 +339,7 @@ SoundSource::update(float timeSinceLastFrame)
 		success = alGetError();
 		if(success != AL_NO_ERROR)
 		{
-			// print error
+				std::cout<<"Error in :alSourceQueueBuffers"<<std::endl;
 			return;
 		}
 	}

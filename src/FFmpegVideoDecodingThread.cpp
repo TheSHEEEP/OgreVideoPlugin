@@ -448,6 +448,12 @@ void videoDecodingThread(ThreadInfo* p_threadInfo)
     AVFrame* frame = NULL;
     while (av_read_frame(formatContext, &packet) >= 0) 
     {
+        if(videoPlayer->getVideoBufferIsFull())
+        std::cout<<"Decoding loop:VideoBuffer Full"<<std::endl;
+
+        if(videoPlayer->getAudioBufferIsFull())
+         std::cout<<"Decoding loop:AudioBuffer Full"<<std::endl;
+
         // Only start decoding when at least one of the buffers is not full
         while (videoPlayer->getVideoBufferIsFull() && videoPlayer->getAudioBufferIsFull())
         {
@@ -458,6 +464,7 @@ void videoDecodingThread(ThreadInfo* p_threadInfo)
             
             if (videoInfo.decodingAborted)
             {
+                   std::cout<<"Decoding loop:Aborted"<<std::endl;
                 break;
             }
         }
@@ -465,6 +472,7 @@ void videoDecodingThread(ThreadInfo* p_threadInfo)
         // Break if the decoding was aborted
         if (videoInfo.decodingAborted)
         {
+            std::cout<<"Decoding loop:Aborted2"<<std::endl;
             break;
         }
         
@@ -473,16 +481,17 @@ void videoDecodingThread(ThreadInfo* p_threadInfo)
         {
             if (!(frame = av_frame_alloc())) 
             {
+                std::cout<<"Decoding loop:Out of memory."<<std::endl;
                 videoInfo.error = "Out of memory.";
                 return;
             }
         } 
-        /*
+        
         else
         {
-            avcodec_get_frame_defaults(frame);
+              av_frame_unref(frame);
         }
-        */
+        
         // Decode the packet
         AVPacket orig_pkt = packet;
         do 
@@ -490,11 +499,13 @@ void videoDecodingThread(ThreadInfo* p_threadInfo)
             int decoded = 0;
             if (packet.stream_index == audioStreamIndex)
             {
+                 std::cout<<"Decoding:AudioPacket."<<std::endl;
                 decoded = decodeAudioPacket(packet, audioCodecContext, audioStream, frame, swrContext,
                                             destBuffer, destBufferLinesize, videoPlayer, videoInfo, isLoop);
             }
             else if (packet.stream_index == videoStreamIndex)
             {
+                 std::cout<<"Decoding:VideoPacket."<<std::endl;
                 decoded = decodeVideoPacket(packet, videoCodecContext, videoStream, frame, swsContext, 
                                             (AVPicture*)destPic, videoPlayer, videoInfo, isLoop);
             }
@@ -509,6 +520,7 @@ void videoDecodingThread(ThreadInfo* p_threadInfo)
             if (decoded < 0)
             {
                 // The error itself is set by the decode functions
+                 std::cout<<"Decoding:decode<0."<<std::endl;
                 playerCondVar->notify_all();
                 return;
             }
@@ -520,7 +532,7 @@ void videoDecodingThread(ThreadInfo* p_threadInfo)
         
         av_free_packet(&orig_pkt);
     }
-    
+     std::cout<<"Decoding:Done!."<<std::endl;
     // We're done. Close everything
     av_frame_free(&frame);
     avpicture_free((AVPicture*)destPic);
