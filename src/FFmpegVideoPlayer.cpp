@@ -326,38 +326,6 @@ pixelBuffer->unlock();
 
     // Now look for the texture
     bool found = true;
-    unsigned short numTechniques = matPtr->getNumTechniques();
-    for (unsigned short i = 0; i < numTechniques; ++i)
-    {
-        Ogre::Technique* tech = matPtr->getTechnique(i);
-        unsigned short numPasses = tech->getNumPasses();
-        for (unsigned short j = 0; j < numPasses; ++j)
-        {
-            Ogre::Pass* pass = tech->getPass(j);
-            unsigned short numTUs = pass->getNumTextureUnitStates();
-            for (unsigned short k = 0; k < numTUs; ++k)
-            {
-                Ogre::TextureUnitState* tu = pass->getTextureUnitState(k);
-                
-                // Is this our texture?
-                if (tu->getName() == _textureUnitName)
-                {
-                    _originalTextureUnitState = tu;
-                    _originalTextureName = tu->getTextureName();
-                    found = true;
-                    
-                    if (_log && _logLevel >= LOGLEVEL_NORMAL)
-                        _log->logMessage("Successfully found texture unit " 
-                                        + _textureUnitName + " inside material " 
-                                        + _materialName + ".", Ogre::LML_NORMAL);
-                }
-            }
-            
-            if (found) break;
-        }
-        
-        if (found) break;
-    }
 	if (!found) return false;
     
     _isWaitingForBuffers = true;
@@ -475,7 +443,7 @@ FFmpegVideoPlayer::stopVideo()
     _currentDecodingThread->join();
     
     // Restore original texture
-    _originalTextureUnitState->setTextureName(_originalTextureName);
+   /// _originalTextureUnitState->setTextureName(_originalTextureName);
     
     // Stop playback
     _isDecoding = false;
@@ -703,7 +671,7 @@ FFmpegVideoPlayer::frameStarted(const Ogre::FrameEvent& p_evt)
             if (!_isLooping)
             {
                 // Restore the texture's original state
-                _originalTextureUnitState->setTextureName(_originalTextureName);
+              //  _originalTextureUnitState->setTextureName(_originalTextureName);
 
                 _isPlaying = false;
             }
