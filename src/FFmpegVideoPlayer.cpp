@@ -285,18 +285,47 @@ FFmpegVideoPlayer::startPlaying()
     }
     
     // Create a new texture for our video
-    Ogre::TextureManager::getSingleton().remove("FFmpegVideoTexture");
+    Ogre::TextureManager::getSingleton().remove(_textureUnitName);
     _texturePtr = Ogre::TextureManager::getSingleton().createManual(
-                    "FFmpegVideoTexture",
+                    _textureUnitName,
                     Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
                     Ogre::TEX_TYPE_2D,
                     _videoInfo.videoWidth, _videoInfo.videoHeight,
                     0,
                     Ogre::PF_BYTE_RGBA,
                     Ogre::TU_DYNAMIC_WRITE_ONLY_DISCARDABLE);
-    
+
+
+// Get the pixel buffer
+Ogre::HardwarePixelBufferSharedPtr pixelBuffer = _texturePtr->getBuffer();
+
+// Lock the pixel buffer and get a pixel box
+pixelBuffer->lock(Ogre::HardwareBuffer::HBL_NORMAL); // for best performance use HBL_DISCARD!
+const Ogre::PixelBox& pixelBox = pixelBuffer->getCurrentLock();
+
+Ogre::uint8* pDest = static_cast<Ogre::uint8*>(pixelBox.data);
+
+// Fill in some pixel data. This will give a semi-transparent blue,
+// but this is of course dependent on the chosen pixel format.
+for (size_t j = 0; j < 256; j++)
+{
+    for(size_t i = 0; i < 256; i++)
+    {
+        *pDest++ = 255; // B
+        *pDest++ =   0; // G
+        *pDest++ =   0; // R
+        *pDest++ = 127; // A
+    }
+
+    pDest += pixelBox.getRowSkip() * Ogre::PixelUtil::getNumElemBytes(pixelBox.format);
+}
+
+// Unlock the pixel buffer
+pixelBuffer->unlock();
+ matPtr->getTechnique(0)->getPass(0)->createTextureUnitState(_textureUnitName);
+
     // Now look for the texture
-    bool found = false;
+    bool found = true;
     unsigned short numTechniques = matPtr->getNumTechniques();
     for (unsigned short i = 0; i < numTechniques; ++i)
     {
@@ -642,7 +671,7 @@ FFmpegVideoPlayer::frameStarted(const Ogre::FrameEvent& p_evt)
         }
         
         // Buffers are filled, so replace the texture and start playing
-        _originalTextureUnitState->setTextureName("FFmpegVideoTexture");
+       // _originalTextureUnitState->setTextureName("FFmpegVideoTexture");
         if (_log && _logLevel >= LOGLEVEL_NORMAL) 
              _log->logMessage("Replacing texture " + _originalTextureName + " with video texture.");
         
