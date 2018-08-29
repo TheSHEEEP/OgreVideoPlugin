@@ -1,5 +1,7 @@
 # Change this to your project's name
 set(PROJECT_NAME "OgreVideoPlugin")
+set (OPEN_AL  $ENV{OPEN_AL})
+set(OPEN_AL_LIB ${OPEN_AL}/build/Debug/OpenAL32.lib)
 
 # Set install prefix to something not silly
 # MUST be done before the project() call - silly cmake
@@ -81,7 +83,7 @@ if(OGG1_USE_OGG_THEORA_VORBIS)
 endif(OGG1_USE_OGG_THEORA_VORBIS)
 
 # Include directory
-include_directories("./include")
+include_directories("./include" ${CMAKE_CURRENT_SOURCE_DIR}/example ${OPEN_AL}/include)
 
 # The project's sources
 list(APPEND PROJECT_SOURCES
@@ -90,6 +92,8 @@ list(APPEND PROJECT_SOURCES
     src/FFmpegVideoPlugin.cpp
     src/FFmpegVideoPluginDLL.cpp
     src/boost_exception.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/example/VideoSoundSource.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/example/VideoSoundSource.h
     include/FFmpegPluginPrerequisites.h
     include/FFmpegVideoDecodingThread.h
     include/FFmpegVideoPlayer.h
@@ -105,10 +109,10 @@ add_library(${PROJECT_NAME} SHARED ${PROJECT_SOURCES})
 # Add libraries to link against
 target_link_libraries(${PROJECT_NAME} ${LIBS})
 if(MINGW)
-    target_link_libraries(${PROJECT_NAME} "pthread" "iconv")
+    target_link_libraries(${PROJECT_NAME} "pthread" "iconv" ${OPEN_AL_LIB})
 endif(MINGW)
 if(WIN32)
-    target_link_libraries(${PROJECT_NAME} "ws2_32" "wsock32")
+    target_link_libraries(${PROJECT_NAME} "ws2_32" "wsock32" ${OPEN_AL_LIB})
 endif(WIN32)
 
 # Install paths

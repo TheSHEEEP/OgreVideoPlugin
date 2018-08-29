@@ -13,7 +13,16 @@
 #define AL_ALEXT_PROTOTYPES
 #include <AL/efx.h>
 #undef AL_ALEXT_PROTOTYPES
+#include <AL/alc.h>
+#include <AL/alext.h>
+#define TEST_ERROR(_msg)		\
+	error = alGetError();		\
+	if (error != AL_NO_ERROR) {	\
+		std::cout<<_msg<< "\n";	\
+	}
 
+
+ALfloat listenerOri[] = { 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f };
 class VideoSoundSource
 {
     enum State
@@ -30,7 +39,7 @@ public:
 	 * Constructor.
 	 * @param source 	The OpenAL source to use.
 	 */
-    VideoSoundSource(ALuint source);
+    VideoSoundSource();
 	
 	/**
 	 * Destructor.
@@ -81,6 +90,27 @@ protected:
     double  _streamingBufferTime;
     bool    _delayStreamingPlay;
     double  _playbackTime;
+
+       /**
+     * Resume the source.
+     */
+    
+    ALCdevice *device;
+	ALvoid *data;
+
+	ALCcontext *context;
+	ALsizei size, freq;
+	ALuint buffer, source;
+	
+	ALboolean loop = AL_FALSE;
+	ALCenum error;
+    ALboolean enumeration;
+	const ALCchar *devices;
+	const ALCchar *defaultDeviceName ="";
+
+    void setup();
+    void list_audio_devices(const ALCchar *devices);
+    ALenum to_al_format(short channels, short samples);
 };
 
 #endif // #ifndef _VideoSoundSource_

@@ -10,7 +10,7 @@
 
 #include "FFmpegPluginPrerequisites.h"
 #include "FFmpegVideoDecodingThread.h"
-
+#include "VideoSoundSource.h"
 #include <OgreFrameListener.h>
 #include <OgreTextureManager.h>
 #include <deque>
