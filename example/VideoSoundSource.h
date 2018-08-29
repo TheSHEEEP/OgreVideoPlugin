@@ -22,7 +22,7 @@
 	}
 
 
-ALfloat listenerOri[] = { 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f };
+
 class VideoSoundSource
 {
     enum State
@@ -35,6 +35,7 @@ class VideoSoundSource
     };
     
 public:
+    ALfloat listenerOri[6];
 	/**
 	 * Constructor.
 	 * @param source 	The OpenAL source to use.

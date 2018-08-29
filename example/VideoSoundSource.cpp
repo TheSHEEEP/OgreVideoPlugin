@@ -19,7 +19,9 @@ VideoSoundSource::VideoSoundSource()
     , _streamingBufferTime(0.0)
     , _delayStreamingPlay(false)
     , _playbackTime(0.0)
+	,listenerOri{ 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f }
 {
+	
 	setup();
 }
 
