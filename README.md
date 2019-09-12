@@ -101,7 +101,7 @@ I have not tested this, though, so I do not guarantee anything.
 <h2>License - MIT</h2>
 The MIT License (MIT)
 
-Copyright (c) 2014 Jan "TheSHEEEP" Drabner (jan@jdrabner.eu)
+Copyright (c) 2014 Jan "TheSHEEEP" Drabner (jd@jdrabner.eu)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
