@@ -6,20 +6,23 @@
 #include <vector>
 
 #include "FFmpegVideoPlayer.h"
-#include <AL/alext.h>
+
+
 
 using namespace Ogre;
 
 //--------------------------------------------------------------------------------------------------
-VideoSoundSource::VideoSoundSource(ALuint source)
-    : _source(source)
-    , _state(Idle)
+VideoSoundSource::VideoSoundSource()
+    :  _state(Idle)
     , _streamingFormat(-1)
     , _streamingFrequency(-1)
     , _streamingBufferTime(0.0)
     , _delayStreamingPlay(false)
     , _playbackTime(0.0)
+	,listenerOri{ 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f }
 {
+	
+	setup();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -31,14 +34,14 @@ VideoSoundSource::~VideoSoundSource(void)
 	ALenum success = alGetError();
 	if(success != AL_NO_ERROR)
 	{
-		// print error
+		std::cout<<"Error in :~VideoSoundSource(void)"<<std::endl;
 		return;
 	}
 	alSourceStop(_source);
 	success = alGetError();
 	if(success != AL_NO_ERROR)
 	{
-		// print error
+		std::cout<<"Error in :~VideoSoundSource(void)2"<<std::endl;
 		return;
 	}
 
@@ -47,7 +50,7 @@ VideoSoundSource::~VideoSoundSource(void)
 	success = alGetError();
 	if(success != AL_NO_ERROR)
 	{
-		// print error
+		std::cout<<"Error in :~VideoSoundSource(void)3"<<std::endl;
 		return;
 	}
 	
@@ -56,7 +59,7 @@ VideoSoundSource::~VideoSoundSource(void)
 
 //--------------------------------------------------------------------------------------------------
 void
-SoundSource::play()
+VideoSoundSource::play()
 {
 	// Get the format and the frequency.
 	if (_streamingFormat == -1 && _streamingFrequency == -1)
@@ -75,7 +78,7 @@ SoundSource::play()
 		// Use Float32 if possible!
 		if (alIsExtensionPresent("AL_EXT_FLOAT32"))
 		{
-			CONSOLE_LOG("FLOAT32 extension is present.");
+			std::cout<<"FLOAT32 extension is present."<<std::endl;
 			switch(FFMPEG_PLAYER->getVideoInfo().audioNumChannels)
 			{
 			case 1:
@@ -110,7 +113,7 @@ SoundSource::play()
 	ALenum success = alGetError();
 	if(success != AL_NO_ERROR)
 	{
-		// print error
+		std::cout<<"Error in :play()"<<std::endl;
 		return;
 	}
 	
@@ -134,7 +137,7 @@ SoundSource::play()
 		success = alGetError();
 		if(success != AL_NO_ERROR)
 		{
-			// print error
+			std::cout<<"Error in :play()1"<<std::endl;
 			return;
 		}
 	}
@@ -144,7 +147,7 @@ SoundSource::play()
 	success = alGetError();
 	if(success != AL_NO_ERROR)
 	{
-		// print error
+			std::cout<<"Error in :play()2"<<std::endl;
 		return;
 	}
     
@@ -154,7 +157,7 @@ SoundSource::play()
 
 //--------------------------------------------------------------------------------------------------
 void
-SoundSource::stop()
+VideoSoundSource::stop()
 {
     alSourceStop(_source);
     _state = Idle;
@@ -162,21 +165,21 @@ SoundSource::stop()
 
 //--------------------------------------------------------------------------------------------------
 void
-SoundSource::setPitch(float factor)
+VideoSoundSource::setPitch(float factor)
 {
     alSourcef(_source, AL_PITCH, factor);
 }
 
 //--------------------------------------------------------------------------------------------------
 void
-SoundSource::setVolume(float gain)
+VideoSoundSource::setVolume(float gain)
 {
     alSourcef(_source, AL_GAIN, gain);
 }
 
 //--------------------------------------------------------------------------------------------------
 void 
-SoundSource::pause()
+VideoSoundSource::pause()
 {
     alSourcePause(_source);
     _state = Paused;
@@ -184,7 +187,7 @@ SoundSource::pause()
     
 //--------------------------------------------------------------------------------------------------
 void 
-SoundSource::resume()
+VideoSoundSource::resume()
 {
     if (_state == Paused)
     {
@@ -195,7 +198,7 @@ SoundSource::resume()
 
 //--------------------------------------------------------------------------------------------------
 void 
-SoundSource::update(float timeSinceLastFrame)
+VideoSoundSource::update(float timeSinceLastFrame)
 {
 	// Make sure no further decoding is done and pause the source
 	// This is a fallback.
@@ -317,7 +320,7 @@ SoundSource::update(float timeSinceLastFrame)
 		ALenum success = alGetError();
 		if(success != AL_NO_ERROR)
 		{
-			// print error
+				std::cout<<"Error in :alSourceUnqueueBuffers"<<std::endl;
 			return;
 		}
 		
@@ -326,7 +329,7 @@ SoundSource::update(float timeSinceLastFrame)
 		success = alGetError();
 		if(success != AL_NO_ERROR)
 		{
-			// print error
+				std::cout<<"Error in :alBufferData"<<std::endl;
 			return;
 		}
 		
@@ -338,7 +341,7 @@ SoundSource::update(float timeSinceLastFrame)
 		success = alGetError();
 		if(success != AL_NO_ERROR)
 		{
-			// print error
+				std::cout<<"Error in :alSourceQueueBuffers"<<std::endl;
 			return;
 		}
 	}
@@ -351,3 +354,93 @@ SoundSource::update(float timeSinceLastFrame)
 		alSourcePlay(_source);
 }
 
+void VideoSoundSource::list_audio_devices(const ALCchar *devices)
+{
+	const ALCchar *device = devices, *next = devices + 1;
+	size_t len = 0;
+
+	std::cout<< "Devices list:\n";
+	std::cout<< "----------\n";
+	while (device && *device != '\0' && next && *next != '\0') {
+		std::cout<< device<<"\n";
+		len = strlen(device);
+		device += (len + 1);
+		next += (len + 2);
+	}
+	std::cout<<"----------\n";
+}
+
+ALenum VideoSoundSource::to_al_format(short channels, short samples)
+{
+	bool stereo = (channels > 1);
+
+	switch (samples) {
+	case 16:
+		if (stereo)
+			return AL_FORMAT_STEREO16;
+		else
+			return AL_FORMAT_MONO16;
+	case 8:
+		if (stereo)
+			return AL_FORMAT_STEREO8;
+		else
+			return AL_FORMAT_MONO8;
+	default:
+		return -1;
+	}
+}
+
+void VideoSoundSource::setup(){
+
+	enumeration = alcIsExtensionPresent(NULL, "ALC_ENUMERATION_EXT");
+	if (enumeration == AL_FALSE)
+		std::cout<< "enumeration extension not available\n";
+
+	list_audio_devices(alcGetString(NULL, ALC_DEVICE_SPECIFIER));
+
+	if (!defaultDeviceName)
+		defaultDeviceName = alcGetString(NULL, ALC_DEFAULT_DEVICE_SPECIFIER);
+
+
+	device = alcOpenDevice(defaultDeviceName);
+	if (!device) {
+		std::cout<<"unable to open default device\n";
+	}
+
+	std::cout<<"Device:"<<alcGetString(device, ALC_DEVICE_SPECIFIER)<<std::endl;
+	alGetError();
+
+	context = alcCreateContext(device, NULL);
+	if (!alcMakeContextCurrent(context)) {
+		std::cout<<"failed to make default context\n";
+	
+	}
+	TEST_ERROR("make default context");
+
+	
+	/* set orientation */
+	alListener3f(AL_POSITION, 0, 0, 1.0f);
+	TEST_ERROR("listener position");
+    	alListener3f(AL_VELOCITY, 0, 0, 0);
+	TEST_ERROR("listener velocity");
+	alListenerfv(AL_ORIENTATION, listenerOri);
+	TEST_ERROR("listener orientation");
+
+	alGenSources((ALuint)1, & _source);
+	TEST_ERROR("source generation");
+
+	alSourcef( _source, AL_PITCH, 1);
+	TEST_ERROR(" _source pitch");
+	alSourcef( _source, AL_GAIN, 1);
+	TEST_ERROR(" _source gain");
+	alSource3f( _source, AL_POSITION, 0, 0, 0);
+	TEST_ERROR(" _source position");
+	alSource3f( _source, AL_VELOCITY, 0, 0, 0);
+	TEST_ERROR(" _source velocity");
+	alSourcei( _source, AL_LOOPING, AL_FALSE);
+	TEST_ERROR(" _source looping");
+
+
+
+
+}

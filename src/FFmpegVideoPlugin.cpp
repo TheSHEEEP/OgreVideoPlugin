@@ -2,6 +2,7 @@
 
 #include <OgreLogManager.h>
 
+
 const Ogre::String sPluginName = "FFmpeg Video Plugin";
 
 //------------------------------------------------------------------------------
